@@ -29,7 +29,7 @@ A missão de Teodora é proteger os _Betinhas_ (humanos decentes que restaram) e
 >   do próprio repositório. Mas, garanta que qualquer um tenha
 >   permissão de acesso ao vídeo através deste link.
 
-<mark>`<preencher>`</mark>
+<mark>`https://www.youtube.com/watch?v=MnqLJpgq7jc`</mark>
 
 ### Vídeo - Timestamp
 
@@ -38,8 +38,8 @@ A missão de Teodora é proteger os _Betinhas_ (humanos decentes que restaram) e
 >   será a base de comparação para avaliar se o seu trabalho final
 >   conseguiu ou não reproduzir a referência.
 
-- **Timestamp inicial**: <mark>`<preencher>`</mark>
-- **Timestamp final**: <mark>`<preencher>`</mark>
+- **Timestamp inicial**: <mark>`https://youtu.be/MnqLJpgq7jc?si=diFH3LuA-xRiJF0c&t=9`</mark>
+- **Timestamp final**: <mark>`https://youtu.be/MnqLJpgq7jc?si=diFH3LuA-xRiJF0c&t=39`</mark>
 
 ### Imagens
 
