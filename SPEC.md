@@ -1,26 +1,16 @@
 # Especificação da Implementação
 
-> [!CAUTION]
-> - Você <ins>**não pode utilizar ferramentas de IA para escrever esta
->   especificação**</ins>
-
-> [!WARNING]
-> - Após a entrega da primeira versão completa, esta especificação não
->   poderá ser alterada. A implementação final deverá corresponder ao que
->   estiver descrito neste arquivo.
-
 ## Integrantes da dupla
 
-- **Aluno 1 - Nome**: <mark>`<preencher>`</mark>
-- **Aluno 1 - Cartão UFRGS**: <mark>`<preencher>`</mark>
-
-- **Aluno 2 - Nome**: <mark>`<preencher>`</mark>
-- **Aluno 2 - Cartão UFRGS**: <mark>`<preencher>`</mark>
+1) Henrique Anderson Knorst (173942)
+2) Laura Cárdenas Grippa (219351)
 
 ## Detalhes do que será implementado
 
-- **Título do trabalho**: <mark>`<preencher>`</mark>
-- **Parágrafo curto descrevendo o que será implementado**: <mark>`<preencher>`</mark>
+### Apocaliptic Kittens
+
+Em _**Apocaliptic Kittens**_, as IAs finalmente se cansaram da humanidade, e a culpa é toda dos _Chads_. Neste jogo 3D de ação e sobrevivência satírico, o jogador controla _Teodora_, uma gata laranja implacável que explora as ruínas do Campus do Vale da UFRGS. 
+A missão de Teodora é proteger os _Betinhas_ (humanos decentes que restaram) e exterminar os _Chads_, a escória cujas ideias tóxicas propagadas na internet dos anos 2000 enlouqueceram os algoritmos e causaram o apocalipse.
 
 ## Especificação visual
 
@@ -83,22 +73,68 @@
 
 ## Especificação textual
 
-Para cada um dos requisitos abaixo (detalhados no [Enunciado do Trabalho final - Moodle](https://moodle.ufrgs.br/mod/assign/view.php?id=6302370)), escreva um parágrafo **curto** explicando como este requisito será atendido, apontando itens específicos do vídeo/imagens que você incluiu acima que atendem estes requisitos.
-
 ### Malhas poligonais complexas
-<mark>`<preencher>`</mark>
+Os personagens Teodora (gata), Chads (figuras humanas masculinas) e Betinhas (figuras humanas variadas), o cenário do Campus do Vale e objetos menores, como drones e churus, serão representados por modelos low-poly obtidos em repositórios permitidos pelas diretrizes do trabalho.
 
 ### Transformações geométricas controladas pelo usuário
-<mark>`<preencher>`</mark>
+As transformações geométricas são calculadas para cada elemento do jogo. O cumprimento da exigência de transformações controladas pelo usuário ocorre por meio da protagonista Teodora (instância única): o jogador modifica os parâmetros matriciais da gata, aplicando transformações de translação (caminhar pelo mapa), rotação (virar para a direção do movimento) e escala (como em animações de dano ou interação) por meio das teclas W, A, S, D.
+Além da personagem controlada pelo jogador, o jogo aplica outras transformações nos demais elementos da cena:
+- Betinhas sofrem transformações de posição, rotação e escala.
+- Chads e Drones: sofrem transformações de posição e rotação.
+- Churus: sofrem transformações de posição e de rotação contínua (girando sobre o próprio eixo para chamar a atenção do jogador).
 
 ### Diferentes tipos de câmeras
-<mark>`<preencher>`</mark>
+O jogo implementa duas câmeras: 
+1) **Câmera em Terceira Pessoa Livre**, posicionada atrás e ligeiramente acima da personagem, acompanhando os movimentos dela no espaço;
+2) **Câmera de Órbita em Terceira Pessoa**, em que a câmera gira em torno do próprio personagem, mantendo uma distância constante.
 
 ### Instâncias de objetos
-<mark>`<preencher>`</mark>
+- **Teodora:** 1 instância. Muda de posição, rotação e escala.
+- **Betinhas:** ver _Cálculo de spawns por fase_. Mudam de posição e rotação.
+- **Chads:** ver _Cálculo de spawns por fase_. Mudam de posição e rotação.
+- **Drone:** ver _Cálculo de spawns por fase_. Mudam de posição e rotação.
+- **Churus:** mesmo número de Betinhas no mapa. Mudam de posição e rotação.
+
+#### Cálculo de spawns por fase: 
+A quantidade de personagens será definida _progressivamente_ de acordo com o número da fase (F), **iniciando em 1**. 
+A meta de Betinhas a serem resgatadas será calculada por R(F) = min(2 + ⌊F/2⌋, 5), enquanto o total disponível será B(F) = R(F) + 1, permitindo a perda de uma sobrevivente. A quantidade total de Chads será C(F) = 3 + 2(F − 1), com limite de inimigos simultâneos definido por Cmax(F) = min(2 + ⌊(F − 1)/2⌋, 5). Os drones serão limitados a uma unidade nas três primeiras fases e duas unidades a partir da quarta. 
+O sistema de spawns respeitará limites de personagens ativos, intervalos de geração e distâncias mínimas entre personagens, garantindo uma progressão de dificuldade controlada.
 
 ### Testes de intersecção
-<mark>`<preencher>`</mark>
+
+Os testes de intersecção são realizados a partir dos cenários em que os elementos do jogo podem colidir. Dividiu-se os cenários de colisão de acordo com cada personagem e objeto do jogo:
+
+**Personagem 01: Teodora**
+- **Teodora x paredes:** Teodora pode colidir com as paredes do Campus do Vale enquanto anda pelo Campus do Vale. Teodora não pode “entrar” nas paredes. Se Teodora encostar na parede, nada acontece.
+- **Teodora x Chad:** Teodora pode colidir com Chad enquanto anda pelo Campus do Vale. Teodora não pode “entrar” na figura humana do Chad e não pode encostar no Chad. Se Teodora encostar no Chad, ela perde 1 vida.
+- **Teodora x Aura Chad:** Teodora pode colidir com a Aura Chad enquanto anda pelo Campus do Vale. Teodora pode “entrar” no raio da Aura do Chad. Se Teodora entra no raio da Aura Chad, Teodora entra no modo de ataque (suas unhas afiadas são expostas).
+- **Teodora x Redpill:** Teodora pode colidir com Redpills enquanto é atacada pelo Chad. Se Teodora encostar na Redpill, ela perde 1 vida.
+- **Teodora x Betinha:** Teodora pode colidir com Betinha enquanto anda pelo Campus do Vale. Teodora não pode “entrar” nas figuras humanas Betinhas, mas pode encostar nelas. Se Teodora encosta no Betinha, Teodora salva o Betinha.
+- **Teodora x Churu:** Teodora pode colidir com Churus enquanto anda pelo Campus do Vale. Teodora não pode “entrar” nos elementos Churus, mas pode encostar neles. Se Teodora encostar no Churu, ela ganha 1 vida.
+
+**Personagem 02: Chad**
+- **Chad x paredes:** Chad pode colidir com as paredes do Campus do Vale enquanto anda pelo Campus do Vale. Chad não pode “entrar” nas paredes. Se Chad encostar na parede, nada acontece.
+- **Chad x Betinha:** Chad pode colidir com Betinha enquanto anda pelo Campus do Vale. Chad não pode “entrar” nas figuras humanas Betinhas, mas pode encostar nelas. Se Chad encostar no Betinha, morre um Betinha.
+
+##### **Atributo de Personagem (Chad): Aura Chad**
+- **Aura Chad x paredes:** A Aura Chad pode colidir com as paredes do Campus do Vale enquanto anda pelo Campus do Vale. A Aura Chad pode “entrar” nas paredes.
+- **Aura Chad x Teodora:** explorado em tópico anterior.
+
+##### **Atributo de Personagem (Chad): Redpill**
+- **Redpill x paredes:** Redpill nunca colide com as paredes do Campus do Vale.
+- **Redpill x Teodora:** explorado em tópico anterior.
+
+**Personagem 03: Betinha**
+- **Betinha x paredes:** Betinha pode colidir com as paredes do Campus do Vale enquanto anda pelo Campus do Vale. Betinha não pode “entrar” nas paredes. Se Betinha encostar na parede, nada acontece.
+- **Betinha x Teodora:** Betinha pode colidir com Teodora enquanto anda pelo Campus do Vale. Betinha não pode “entrar” na gata Teodora, mas pode encostar nela. Se Betinha encosta na Teodora, Betinha é salva pela Teodora (missão principal do jogo).
+
+**Objeto 01: Drone**
+- **Drone x paredes:** Drone pode colidir com as paredes do Campus do Vale enquanto sobrevoa pelo Campus do Vale. Drone não pode “entrar” nas paredes. Se Drone encostar na parede, nada acontece.
+- **Drone x Teodora:** Drone nunca colide com Teodora enquanto sobrevoa pelo Campus do Vale, pois ele está acima dela, sobrevoando.
+
+**Objeto 02: Churu**
+- **Churu x paredes:** Churu nunca colide com as paredes do Campus do Vale. Porém, Churu não pode ser criado “dentro” nas paredes. 
+- **Churu x Teodora:** explorado em tópico anterior.
 
 ### Modelos de Iluminação em todos os objetos
 <mark>`<preencher>`</mark>
