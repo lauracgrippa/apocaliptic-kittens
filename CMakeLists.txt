@@ -14,6 +14,15 @@ set(SOURCES
   src/glad.c
 )
 
+# Protótipo "Apocaliptic Kittens" (originalmente em legacy/*.zip).
+# Executável separado, que reutiliza as mesmas bibliotecas.
+set(PREVIEW_SOURCES
+  src/preview.cpp
+  src/tiny_obj_loader.cpp
+  src/stb_image.cpp
+  src/glad.c
+)
+
 cmake_minimum_required(VERSION 3.5.0)
 
 project(LAB_FCG VERSION 1.0.0)
@@ -46,7 +55,7 @@ set(EXECUTABLE_NAME main)
 
 # Verifica se todos os arquivos fonte estão presentes no diretório
 # atual. Se não estão, avisa sobre CMakeLists mal configurado.
-foreach(source_file IN LISTS SOURCES)
+foreach(source_file IN LISTS SOURCES PREVIEW_SOURCES)
   if(NOT EXISTS ${PROJECT_SOURCE_DIR}/${source_file})
     message(FATAL_ERROR "
 O arquivo ${PROJECT_SOURCE_DIR}/${source_file} não existe.
@@ -58,6 +67,11 @@ endforeach()
 add_executable(${EXECUTABLE_NAME} ${SOURCES})
 
 target_include_directories(${EXECUTABLE_NAME} BEFORE PRIVATE ${PROJECT_SOURCE_DIR}/include)
+
+set(PREVIEW_EXECUTABLE_NAME apocaliptic_preview)
+add_executable(${PREVIEW_EXECUTABLE_NAME} ${PREVIEW_SOURCES})
+target_include_directories(${PREVIEW_EXECUTABLE_NAME} BEFORE PRIVATE ${PROJECT_SOURCE_DIR}/include)
+set_target_properties(${PREVIEW_EXECUTABLE_NAME} PROPERTIES CXX_STANDARD 17)
 
 if(WIN32)
 
@@ -100,15 +114,30 @@ if(WIN32)
   message(STATUS "LIBGLFW = ${LIBGLFW}")
 
   target_link_libraries(${EXECUTABLE_NAME} ${LIBGLFW} gdi32 opengl32)
+  target_link_libraries(${PREVIEW_EXECUTABLE_NAME} ${LIBGLFW} gdi32 opengl32 user32 shell32)
+
+  if(MINGW)
+    # Linka o runtime do MinGW (libgcc, libstdc++, winpthread) estaticamente,
+    # para que os executáveis rodem fora do terminal do MSYS2 sem precisar
+    # de libgcc_s_seh-1.dll / libstdc++-6.dll no PATH.
+    target_link_libraries(${EXECUTABLE_NAME} -static)
+    target_link_libraries(${PREVIEW_EXECUTABLE_NAME} -static)
+  endif()
 
 elseif(UNIX)
 
   target_compile_options(${EXECUTABLE_NAME} PRIVATE -Wall -Wno-unused-function)
+  target_compile_options(${PREVIEW_EXECUTABLE_NAME} PRIVATE -Wall -Wno-unused-function)
 
   # Add custom target for 'run'
   add_custom_target(run
       COMMAND ${CMAKE_COMMAND} -E chdir ${CMAKE_RUNTIME_OUTPUT_DIRECTORY} ./main
       DEPENDS main
+      USES_TERMINAL
+  )
+  add_custom_target(run_preview
+      COMMAND ${CMAKE_COMMAND} -E chdir ${CMAKE_RUNTIME_OUTPUT_DIRECTORY} ./${PREVIEW_EXECUTABLE_NAME}
+      DEPENDS ${PREVIEW_EXECUTABLE_NAME}
       USES_TERMINAL
   )
 
@@ -118,6 +147,17 @@ elseif(UNIX)
   set(THREADS_PREFER_PTHREAD_FLAG ON)
   find_package(Threads REQUIRED)
   target_link_libraries(${EXECUTABLE_NAME}
+    ${CMAKE_DL_LIBS}
+    ${MATH_LIBRARY}
+    ${PROJECT_SOURCE_DIR}/lib-linux/libglfw3.a
+    ${CMAKE_THREAD_LIBS_INIT}
+    ${OPENGL_LIBRARIES}
+    ${X11_LIBRARIES}
+    ${X11_Xrandr_LIB}
+    ${X11_Xcursor_LIB}
+    ${X11_Xinerama_LIB}
+  )
+  target_link_libraries(${PREVIEW_EXECUTABLE_NAME}
     ${CMAKE_DL_LIBS}
     ${MATH_LIBRARY}
     ${PROJECT_SOURCE_DIR}/lib-linux/libglfw3.a
