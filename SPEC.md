@@ -150,13 +150,7 @@ Os testes de intersecção são realizados a partir dos cenários em que os elem
 
 ### Funcionalidade extra obrigatória
 
-> [!IMPORTANT]
-> - Descreva a funcionalidade extra relacionada à Computação Gráfica
->   que será implementada.
-> - Esta funcionalidade também deverá ser documentada no arquivo
->   `README.md` da entrega final.
-
-<mark>`<preencher>`</mark>
+A dupla implementará outros elementos gráficos do jogo, como a barra de hidratação e o contador de vidas da gata Teodora.
 
 ## Limitações esperadas
 
