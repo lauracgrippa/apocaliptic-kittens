@@ -18,6 +18,8 @@ set(SOURCES
 # Executável separado, que reutiliza as mesmas bibliotecas.
 set(PREVIEW_SOURCES
   src/preview.cpp
+  src/collisions.cpp
+  src/overlay.cpp
   src/tiny_obj_loader.cpp
   src/stb_image.cpp
   src/glad.c

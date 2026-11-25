@@ -1,2 +1,3 @@
 https://polyhaven.com/a/rocky_terrain_02
 https://polyhaven.com/a/red_brick
+metal.png: textura procedural original, gerada por scripts/gerar_textura_metal.py (sem assets externos)
