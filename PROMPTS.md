@@ -63,3 +63,18 @@ Integracao feita por IA (Claude Code) na branch `doom-v2`, a partir da `knorst`:
 - README, `data/FONTES.txt` e capturas em `images/preview_v2_*.png`;
 - bibliotecas, GLAD, GLM, stb e tinyobj do ZIP conferidas: identicas as do repositorio;
 - validado no Windows (MinGW64): compila sem avisos, `--self-test` OK e captura renderizada.
+
+## Correcoes: Blinn-Phong, texturas e SPEC (2026-11-25)
+
+Prompt do usuario: "depois disso vamos resolver teus achados, atualizando a spec conforme tua sugestão. Essas correções mantem na Knorst."
+
+Gerado por IA (Claude Code), na `knorst`:
+- `src/preview_fragment.glsl`: volta o termo especular do Blinn-Phong (half-vector,
+  expoente 24), que a V2 tinha removido; mantidos nevoa e quantizacao;
+- `src/preview_vertex.glsl`, `src/preview_fragment.glsl` e `src/preview.cpp`: nas caixas
+  texturizadas o UV passa a ser a coordenada do objeto escalada pelo tamanho real da face,
+  e o `tiles` vira repeticoes por metro. Antes, uma unica contagem por objeto esticava a
+  imagem nas faces compridas (chao 23x73, paredes 72 m);
+- `SPEC.md`: secoes de cameras (primeira pessoa livre + look-at orbital), transformacoes
+  controladas pelo usuario (mouse + WASD) e funcionalidade extra (barra de status);
+- capturas `images/preview_v2_*.png` refeitas.

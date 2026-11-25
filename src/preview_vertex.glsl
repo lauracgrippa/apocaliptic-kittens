@@ -8,10 +8,15 @@ uniform mat4 uProjection;
 out vec3 vWorldPos;
 out vec3 vWorldNormal;
 out vec2 vUV;
+// Espaco do objeto, para o UV das caixas proporcional ao tamanho de cada face.
+out vec3 vObjectPos;
+out vec3 vObjectNormal;
 void main() {
   vec4 world = uModel * vec4(aPosition,1.0);
   vWorldPos = world.xyz;
   vWorldNormal = transpose(inverse(mat3(uModel))) * aNormal;
   vUV = aUV;
+  vObjectPos = aPosition;
+  vObjectNormal = aNormal;
   gl_Position = uProjection * uView * world;
 }

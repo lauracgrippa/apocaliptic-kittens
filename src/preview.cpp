@@ -120,7 +120,7 @@ GLuint load_texture(const char* file) {
 struct Render {
     GLuint program=0, groundTex=0, brickTex=0, metalTex=0;
     Mesh cube,sphere;
-    GLint uModel=-1,uColor=-1,uTextured=-1,uTile=-1;
+    GLint uModel=-1,uColor=-1,uTextured=-1,uTile=-1,uBoxUV=-1,uObjectScale=-1;
     bool init(){
         program=create_program();if(!program)return false;
         if(!cube.load("../../data/cube.obj")||!sphere.load("../../data/sphere.obj"))return false;
@@ -130,6 +130,7 @@ struct Render {
         glUseProgram(program);
         uModel=glGetUniformLocation(program,"uModel");uColor=glGetUniformLocation(program,"uColor");
         uTextured=glGetUniformLocation(program,"uTextured");uTile=glGetUniformLocation(program,"uTile");
+        uBoxUV=glGetUniformLocation(program,"uBoxUV");uObjectScale=glGetUniformLocation(program,"uObjectScale");
         glUniform1i(glGetUniformLocation(program,"uTexture"),0);
         glUniform3f(glGetUniformLocation(program,"uSunDirection"),-.45f,.82f,.18f);
         return groundTex&&brickTex&&metalTex;
@@ -140,16 +141,20 @@ struct Render {
         glUniformMatrix4fv(glGetUniformLocation(program,"uProjection"),1,GL_FALSE,glm::value_ptr(projection));
         glUniform3fv(glGetUniformLocation(program,"uCameraPosition"),1,glm::value_ptr(cam));
     }
-    void draw(const Mesh& mesh,const glm::mat4& transform,glm::vec3 color,GLuint texture=0,float tiles=1)const{
+    // tiles: repeticoes da textura. Com boxSize != 0 (caixas texturizadas), passa a ser
+    // repeticoes por metro, e o UV vem do tamanho real de cada face: a imagem nao estica.
+    void draw(const Mesh& mesh,const glm::mat4& transform,glm::vec3 color,GLuint texture=0,float tiles=1,
+              glm::vec3 boxSize=glm::vec3(0))const{
         glUniformMatrix4fv(uModel,1,GL_FALSE,glm::value_ptr(transform));
         glUniform3fv(uColor,1,glm::value_ptr(color));
         glUniform1i(uTextured,texture!=0);glUniform1f(uTile,tiles);
+        glUniform1i(uBoxUV,boxSize!=glm::vec3(0));glUniform3fv(uObjectScale,1,glm::value_ptr(boxSize));
         glActiveTexture(GL_TEXTURE0);glBindTexture(GL_TEXTURE_2D,texture);mesh.draw();
     }
     void box(glm::mat4 parent,glm::vec3 local,glm::vec3 size,glm::vec3 color,
-        float rx=0,float ry=0,float rz=0,GLuint texture=0,float tiles=1)const{
+        float rx=0,float ry=0,float rz=0,GLuint texture=0,float perMeter=1)const{
         glm::mat4 m=cg::model(parent,local,size,rx,ry,rz)*cg::translate({0,.5f,0});
-        draw(cube,m,color,texture,tiles);
+        draw(cube,m,color,texture,perMeter,texture?size:glm::vec3(0));
     }
     void ball(glm::mat4 parent,glm::vec3 local,glm::vec3 size,glm::vec3 color)const{
         draw(sphere,cg::model(parent,local,size),color);
@@ -279,12 +284,12 @@ std::vector<WallAABB> makeWalls(){
 }
 void drawEnvironment(const Render& r){
     glm::mat4 I(1);
-    r.box(I,{0,-.34f,-9},{23,.65f,73},{.47f,.49f,.51f},0,0,0,r.groundTex,34);
-    r.box(I,{0,-.012f,-9},{17,.035f,72},{.46f,.49f,.50f},0,0,0,r.metalTex,18);
+    r.box(I,{0,-.34f,-9},{23,.65f,73},{.47f,.49f,.51f},0,0,0,r.groundTex,.45f);
+    r.box(I,{0,-.012f,-9},{17,.035f,72},{.46f,.49f,.50f},0,0,0,r.metalTex,.25f);
     // Three-dimensional brick campus facades, with side passages and skylights.
     for(float side:{-1.f,1.f}){
-        r.box(I,{side*10.5f,3.0f,-9},{1.75f,6.f,72},{.63f,.54f,.53f},0,0,0,r.brickTex,12);
-        r.box(I,{side*9.65f,3.f,-9},{.19f,5.8f,71},{.30f,.30f,.36f},0,0,0,r.metalTex,9);
+        r.box(I,{side*10.5f,3.0f,-9},{1.75f,6.f,72},{.63f,.54f,.53f},0,0,0,r.brickTex,.5f);
+        r.box(I,{side*9.65f,3.f,-9},{.19f,5.8f,71},{.30f,.30f,.36f},0,0,0,r.metalTex,.25f);
         for(int k=0;k<11;k++){
             float z=9.5f-k*3.6f;
             for(int level=0;level<2;level++){
@@ -294,19 +299,19 @@ void drawEnvironment(const Render& r){
             }
         }
         for(float z:{6.f,-.5f,-13.f,-22.f}){
-           r.box(I,{side*6.5f,2.25f,z},{.8f,4.5f,.8f},{.40f,.43f,.48f},0,0,0,r.metalTex,3);
+           r.box(I,{side*6.5f,2.25f,z},{.8f,4.5f,.8f},{.40f,.43f,.48f},0,0,0,r.metalTex,.25f);
            r.box(I,{side*6.5f,4.5f,z},{1.2f,.35f,1.1f},{.22f,.26f,.30f});
            r.box(I,{side*6.5f,2.9f,z+.47f},{.42f,.48f,.11f},{.68f,.14f,.13f});
         }
     }
     for(float z:{6.f,-.5f,-13.f,-22.f}){
-        r.box(I,{0,4.5f,z},{14.f,.35f,.95f},{.25f,.29f,.33f},0,0,0,r.metalTex,6);
+        r.box(I,{0,4.5f,z},{14.f,.35f,.95f},{.25f,.29f,.33f},0,0,0,r.metalTex,.25f);
         r.box(I,{0,4.22f,z+.37f},{2.5f,.08f,.15f},{.84f,.27f,.12f});
     }
     // Zig-zag barricades, forcing a real FPS navigation path.
-    r.box(I,{-5.85f,1.3f,-7.93f},{6.1f,2.6f,.75f},{.52f,.46f,.46f},0,0,0,r.brickTex,3);
-    r.box(I,{5.78f,1.3f,-19.18f},{6.3f,2.6f,.65f},{.44f,.43f,.44f},0,0,0,r.brickTex,3);
-    r.box(I,{0,.85f,-26.75f},{3.2f,1.7f,.80f},{.45f,.42f,.39f},0,0,0,r.metalTex,2);
+    r.box(I,{-5.85f,1.3f,-7.93f},{6.1f,2.6f,.75f},{.52f,.46f,.46f},0,0,0,r.brickTex,.5f);
+    r.box(I,{5.78f,1.3f,-19.18f},{6.3f,2.6f,.65f},{.44f,.43f,.44f},0,0,0,r.brickTex,.5f);
+    r.box(I,{0,.85f,-26.75f},{3.2f,1.7f,.80f},{.45f,.42f,.39f},0,0,0,r.metalTex,.25f);
     r.box(I,{0,4.0f,-30.5f},{20.f,1.f,.9f},{.20f,.25f,.28f});
     // Ambient safety lights, hazard markings and ground props.
     for(float z:{3.f,-6.f,-15.f,-24.f}){
@@ -319,7 +324,7 @@ void drawEnvironment(const Render& r){
        r.box(I,{s*4.5f,.4f,-2.1f},{1.7f,.18f,.55f},{.32f,.23f,.18f});
        r.box(I,{s*4.5f,.20f,-2.25f},{1.5f,.40f,.15f},{.28f,.23f,.20f});
        for(float z:{-12.f,-23.5f}){
-           r.box(I,{s*8.0f,.55f,z},{1.1f,1.1f,1.0f},{.34f,.40f,.44f},0,.19f,0,r.metalTex,1);
+           r.box(I,{s*8.0f,.55f,z},{1.1f,1.1f,1.0f},{.34f,.40f,.44f},0,.19f,0,r.metalTex,.25f);
        }
     }
     // Surviving holographic beacon over the main objective.
