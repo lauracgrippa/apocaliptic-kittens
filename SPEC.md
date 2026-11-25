@@ -77,7 +77,7 @@ A missão de Teodora é proteger os _Betinhas_ (humanos decentes que restaram) e
 Os personagens Teodora (gata), Chads (figuras humanas masculinas) e Betinhas (figuras humanas variadas), o cenário do Campus do Vale e objetos menores, como drones e churus, serão representados por modelos low-poly obtidos em repositórios permitidos pelas diretrizes do trabalho.
 
 ### Transformações geométricas controladas pelo usuário
-As transformações geométricas são calculadas para cada elemento do jogo. O cumprimento da exigência de transformações controladas pelo usuário ocorre por meio da protagonista Teodora (instância única): o jogador modifica os parâmetros matriciais da gata, aplicando transformações de translação (caminhar pelo mapa), rotação (virar para a direção do movimento) e escala (como em animações de dano ou interação) por meio das teclas W, A, S, D.
+As transformações geométricas são calculadas para cada elemento do jogo. O cumprimento da exigência de transformações controladas pelo usuário ocorre por meio da protagonista Teodora (instância única): o jogador modifica os parâmetros matriciais da gata, aplicando transformações de translação (caminhar pelo mapa, com as teclas W, A, S, D), rotação (girar com o mouse na câmera em primeira pessoa, ou virar para a direção do movimento na câmera orbital) e escala (como em animações de dano ou interação).
 
 Além da personagem controlada pelo jogador, o jogo aplica outras transformações nos demais elementos da cena:
 
@@ -86,10 +86,10 @@ Além da personagem controlada pelo jogador, o jogo aplica outras transformaçõ
 - Churus: sofrem transformações de posição e de rotação contínua (girando sobre o próprio eixo para chamar a atenção do jogador).
 
 ### Diferentes tipos de câmeras
-O jogo implementa duas câmeras:
+O jogo implementa duas câmeras, alternadas pela tecla Tab:
 
-1) **Câmera em Terceira Pessoa Livre**, posicionada atrás e ligeiramente acima da personagem, acompanhando os movimentos dela no espaço;
-2) **Câmera de Órbita em Terceira Pessoa**, em que a câmera gira em torno do próprio personagem, mantendo uma distância constante.
+1) **Câmera livre em primeira pessoa** (padrão), posicionada na cabeça da Teodora. O mouse controla a direção de visão (guinada e arfagem) e as teclas W, A, S, D movem a gata em relação a essa direção, como nos jogos de tiro em primeira pessoa dos anos 90. No lugar do corpo, aparecem apenas as orelhas acima do retrato do HUD e as patas durante o ataque;
+2) **Câmera look-at orbital em terceira pessoa**, que aponta sempre para a Teodora e gira em torno dela com o mouse, a uma distância ajustável pela roda do mouse. Nessa câmera o modelo 3D completo da gata é desenhado.
 
 ### Instâncias de objetos
 - **Teodora:** 1 instância. Muda de posição, rotação e escala.
@@ -168,7 +168,7 @@ Um drone de vigilância controlado pelas Inteligências Artificiais sobrevoa o C
 Todas as movimentações e rotações dos objetos dinâmicos do jogo, incluindo Teodora, Chads, drones, projéteis e câmeras, serão calculadas utilizando o tempo decorrido entre atualizações (*deltaTime*). As velocidades lineares e angulares serão multiplicadas por esse fator, garantindo que os movimentos ocorram de forma consistente, independentemente da taxa de quadros por segundo (FPS) do computador. O deslocamento dos drones ao longo das curvas de Bézier também será baseado no tempo.
 
 ### Funcionalidade extra obrigatória
-A dupla implementará outros elementos gráficos do jogo, a barra de hidratação e o contador de vidas da gata Teodora.
+A dupla implementará outros elementos gráficos do jogo: uma barra de status no rodapé, no estilo dos jogos de tiro dos anos 90, com o contador de vidas e a barra de hidratação da gata Teodora, as Betinhas resgatadas, os Chads restantes e um retrato da Teodora que reage ao dano.
 
 ## Limitações esperadas
 
